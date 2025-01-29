@@ -1,0 +1,70 @@
+clc; clear; close all;
+
+% Create a PDE model
+model = createpde();
+
+% Define rectangle (domain) dimensions
+rect_width = 1.1;  % Total width
+rect_height = 0.5; % Total height
+
+% Define circle properties (conductors)
+circle_radius = 0.1;
+left_circle_center = [-0.35, 0];  % Left conductor position
+right_circle_center = [0.35, 0];  % Right conductor position
+
+% Define rectangle as a polygon (10 rows for consistency)
+R1 = [3; 4; -rect_width/2; rect_width/2; rect_width/2; -rect_width/2; ...
+         -rect_height/2; -rect_height/2; rect_height/2; rect_height/2];
+
+% Define circles as subtracted regions (extended to 10 rows with zeros)
+E1 = [1; left_circle_center(1); left_circle_center(2); circle_radius; 0; 0; 0; 0; 0; 0];
+E2 = [1; right_circle_center(1); right_circle_center(2); circle_radius; 0; 0; 0; 0; 0; 0];
+
+% Combine the rectangle with two circles removed
+gd = [R1, E1, E2];
+sf = 'R1 - E1 - E2';
+ns = char('R1', 'E1', 'E2');
+ns = ns';
+g = decsg(gd, sf, ns);
+
+% Add the geometry to the model
+geometryFromEdges(model, g);
+
+% Apply boundary conditions
+applyBoundaryCondition(model, 'dirichlet', 'Edge', 1:4, 'u', 0);  % Outer boundary (0V)
+applyBoundaryCondition(model, 'dirichlet', 'Edge', 5, 'u', 110);   % Left circle (110V)
+applyBoundaryCondition(model, 'dirichlet', 'Edge', 6, 'u', -110);  % Right circle (-110V)
+
+% Define PDE coefficients (Laplace equation: ∇²V = 0)
+specifyCoefficients(model, 'm', 0, 'd', 0, 'c', 1, 'a', 0, 'f', 0);
+
+% Create mesh (smaller elements for accuracy)
+generateMesh(model, 'Hmax', 0.02);
+
+% Solve the PDE
+results = solvepde(model);
+V = results.NodalSolution;  % Voltage values
+
+% Plot the potential field (without mesh grid)
+figure;
+pdeplot(model, 'XYData', V, 'Contour', 'on', 'ColorMap', 'jet');
+title('Electric Potential Field');
+xlabel('X-axis');
+ylabel('Y-axis');
+colorbar;
+set(gca, 'FontSize', 14);
+grid on; % Makes axis lines clearer
+
+% Compute the electric field (E = -grad(V))
+[gradx, grady] = evaluateGradient(results);
+Ex = -gradx;
+Ey = -grady;
+
+% Plot the electric field using arrows (quiver plot)
+figure;
+pdeplot(model, 'FlowData', [Ex, Ey]);
+title('Electric Field (Vector Plot)');
+xlabel('X-axis');
+ylabel('Y-axis');
+set(gca, 'FontSize', 14);
+grid on;
