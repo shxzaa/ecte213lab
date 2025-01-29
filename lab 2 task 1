@@ -1,0 +1,77 @@
+clc; clear; close all;
+
+% Grid size (4x4 internal points)
+N = 4;
+num_unknowns = N * N;
+
+% Boundary conditions
+V_top = 100;
+V_left = 50;
+V_right = 30;
+V_bottom = 10;
+
+% Coefficient matrix (A) and RHS vector (b)
+A = zeros(num_unknowns, num_unknowns);
+b = zeros(num_unknowns, 1);
+
+% Mapping grid points to unknown indices
+index = @(i,j) (i-1)*N + j;
+
+% Fill the coefficient matrix A and vector b
+for i = 1:N
+    for j = 1:N
+        idx = index(i,j);
+        
+        % Center coefficient (4Vi)
+        A(idx, idx) = 4;
+
+        % Left neighbor
+        if j > 1
+            A(idx, index(i, j-1)) = -1;
+        else
+            b(idx) = b(idx) + V_left;
+        end
+
+        % Right neighbor
+        if j < N
+            A(idx, index(i, j+1)) = -1;
+        else
+            b(idx) = b(idx) + V_right;
+        end
+
+        % Top neighbor
+        if i > 1
+            A(idx, index(i-1, j)) = -1;
+        else
+            b(idx) = b(idx) + V_top;
+        end
+
+        % Bottom neighbor
+        if i < N
+            A(idx, index(i+1, j)) = -1;
+        else
+            b(idx) = b(idx) + V_bottom;
+        end
+    end
+end
+
+% Solve the linear system Ax = b
+V_internal = A \ b;
+
+% Reshape solution into 4x4 grid
+V_grid = reshape(V_internal, [N, N]);
+
+% Display results
+disp('Electric Potential at Internal Grid Points:');
+disp(V_grid);
+
+% Visualization
+[X, Y] = meshgrid(1:N, 1:N);
+figure;
+surf(X, Y, V_grid);
+xlabel('X Grid');
+ylabel('Y Grid');
+zlabel('Potential (V)');
+title('Electric Potential Distribution');
+colorbar;
+
