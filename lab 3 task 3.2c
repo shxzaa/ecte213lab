@@ -1,0 +1,60 @@
+% Task3_2c_PerfectConductor.m
+% Simulates wave behavior when Material 2 is a perfect conductor
+
+clear;
+clc;
+close all;
+
+% Simulation Parameters
+f = 1e9; % Frequency (1 GHz)
+omega = 2 * pi * f;
+c = 3e8; % Speed of light in vacuum
+lambda0 = c / f;
+T0 = 1 / f;
+
+% Material Parameters for Task 3.2c
+mu_r1 = 1; epsilon_r1_real = 4; epsilon_r1_imag = 0;
+mu_r2 = 1; epsilon_r2_real = 1; epsilon_r2_imag = Inf; % Perfect conductor
+
+% Derived Parameters
+epsilon1 = epsilon_r1_real - 1i * epsilon_r1_imag;
+mu1 = mu_r1;
+
+% Wave Parameters for Material 1
+k1 = omega * sqrt(mu1 * epsilon1) / c;
+Z1 = sqrt(mu1 / epsilon1);
+
+% Perfect Conductor Properties
+Gamma = -1; % All waves are reflected with phase change of pi
+Tau = 0;    % No transmission
+
+% Spatial Grid
+z = linspace(-2 * lambda0, 0, 1000); % Only in Material 1
+
+% Time Instances for Observation
+t_values = [0, T0 / 10, T0 / 2, 3 * T0 / 4];
+
+% Calculate and Plot Electric Fields at Different Time Instances
+figure;
+for i = 1:length(t_values)
+    t = t_values(i);
+    
+    % Incident Wave in Material 1
+    Ei = exp(1i * (omega * t - k1 * z));
+    
+    % Reflected Wave in Material 1
+    Er = Gamma * exp(1i * (omega * t + k1 * z));
+    
+    % Superimposed Field in Material 1
+    E1 = Ei + Er;
+    
+    % Plot Electric Field
+    subplot(2,2,i);
+    plot(z, real(E1), 'LineWidth', 2);
+    title(['Electric Field at t = ', num2str(t, '%.2f'), ' s']);
+    xlabel('Position (z)');
+    ylabel('Electric Field');
+    grid on;
+end
+
+sgtitle('Electric Field in Material 1 for Perfect Conductor in Material 2');
