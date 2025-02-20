@@ -1,0 +1,81 @@
+% Task3_2b_SWR_Calculation.m
+% Estimates the Standing Wave Ratio (SWR) for Task 3.2b
+
+clear;
+clc;
+close all;
+
+% Simulation Parameters
+f = 1e9; % Frequency (1 GHz)
+omega = 2 * pi * f;
+c = 3e8; % Speed of light in vacuum
+lambda0 = c / f;
+T0 = 1 / f;
+
+% Material Parameters for Task 3.2b
+mu_r1 = 1; epsilon_r1_real = 4; epsilon_r1_imag = 0;
+mu_r2 = 1; epsilon_r2_real = 81; epsilon_r2_imag = 0;
+
+% Derived Parameters
+epsilon1 = epsilon_r1_real - 1i * epsilon_r1_imag;
+epsilon2 = epsilon_r2_real - 1i * epsilon_r2_imag;
+mu1 = mu_r1;
+mu2 = mu_r2;
+
+% Wave Parameters
+k1 = omega * sqrt(mu1 * epsilon1) / c;
+k2 = omega * sqrt(mu2 * epsilon2) / c;
+Z1 = sqrt(mu1 / epsilon1);
+Z2 = sqrt(mu2 / epsilon2);
+
+% Reflection and Transmission Coefficients
+Gamma = (Z2 - Z1) / (Z2 + Z1);
+Tau = 1 + Gamma;
+
+% Spatial Grid
+z = linspace(-2 * lambda0, 0, 1000); % Only in Material 1
+
+% Time Instances
+t1 = 0;
+t2 = T0 / 4;
+
+% Electric Field Calculations
+% Incident Wave in Material 1
+Ei_t1 = exp(1i * (omega * t1 - k1 * z));
+Ei_t2 = exp(1i * (omega * t2 - k1 * z));
+
+% Reflected Wave in Material 1
+Er_t1 = Gamma * exp(1i * (omega * t1 + k1 * z));
+Er_t2 = Gamma * exp(1i * (omega * t2 + k1 * z));
+
+% Superimposed Field
+E1_t1 = Ei_t1 + Er_t1;
+E1_t2 = Ei_t2 + Er_t2;
+
+% Magnitudes of Electric Fields
+E_max = max(abs(E1_t1));
+E_min = min(abs(E1_t2));
+
+% Standing Wave Ratio (SWR)
+SWR = E_max / E_min;
+
+% Display Result
+disp(['Standing Wave Ratio (SWR) = ', num2str(SWR)]);
+
+% Plot Electric Fields
+figure;
+subplot(2,1,1);
+plot(z, real(E1_t1), 'LineWidth', 2);
+title('Electric Field in Material 1 at t = 0');
+xlabel('Position (z)');
+ylabel('Electric Field');
+grid on;
+
+subplot(2,1,2);
+plot(z, real(E1_t2), 'LineWidth', 2);
+title('Electric Field in Material 1 at t = T_0 / 4');
+xlabel('Position (z)');
+ylabel('Electric Field');
+grid on;
+
+sgtitle('Electric Field in Material 1 at Different Time Instances');
