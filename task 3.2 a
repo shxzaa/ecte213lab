@@ -1,0 +1,66 @@
+% Task3_2a_TEM_Reflection.m
+% Simulates superimposed field F_{2v} in Material 1 for Task 3.2a
+
+clear;
+clc;
+close all;
+
+% Simulation Parameters
+f = 1e9; % Frequency (1 GHz)
+omega = 2 * pi * f;
+c = 3e8; % Speed of light in vacuum
+lambda0 = c / f;
+T0 = 1 / f;
+
+% Material Parameters for Task 3.2a
+mu_r1 = 1; epsilon_r1_real = 4; epsilon_r1_imag = 0;
+mu_r2 = 1; epsilon_r2_real = 81; epsilon_r2_imag = 0;
+
+% Derived Parameters
+epsilon1 = epsilon_r1_real - 1i * epsilon_r1_imag;
+epsilon2 = epsilon_r2_real - 1i * epsilon_r2_imag;
+mu1 = mu_r1;
+mu2 = mu_r2;
+
+% Wave Parameters
+k1 = omega * sqrt(mu1 * epsilon1) / c;
+k2 = omega * sqrt(mu2 * epsilon2) / c;
+Z1 = sqrt(mu1 / epsilon1);
+Z2 = sqrt(mu2 / epsilon2);
+
+% Reflection and Transmission Coefficients
+Gamma = (Z2 - Z1) / (Z2 + Z1);
+Tau = 1 + Gamma;
+
+% Spatial and Temporal Grid
+z = linspace(-2 * lambda0, 2 * lambda0, 1000);
+t_values = [T0/10, T0/2, 3*T0/4];
+
+% Simulation and Plotting
+figure;
+for i = 1:length(t_values)
+    t = t_values(i);
+    
+    % Incident Wave in Material 1
+    Ei = exp(1i * (omega * t - k1 * z));
+    
+    % Reflected Wave in Material 1
+    Er = Gamma * exp(1i * (omega * t + k1 * z));
+    
+    % Transmitted Wave in Material 2
+    Et = Tau * exp(1i * (omega * t - k2 * z));
+    
+    % Superimposed Field
+    E1 = Ei + Er; % Total Field in Material 1
+    F2v = abs(E1) .* (z < 0); % Superimposed Field in Material 1
+    
+    % Plot
+    subplot(3,1,i);
+    plot(z, real(F2v), 'LineWidth', 2);
+    title(['Superimposed Field in Material 1 at t = ', num2str(t, '%.2f'), ' s']);
+    xlabel('Position (z)');
+    ylabel('Electric Field Magnitude');
+    grid on;
+end
+
+sgtitle('Superimposed Electric Field in Material 1');
