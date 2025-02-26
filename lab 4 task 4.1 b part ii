@@ -1,0 +1,21 @@
+function CalculateCutoffFrequencies()
+    % Constants
+    c = 3e8; % Speed of light in m/s
+    a = 0.2; % Width in meters
+    b = 0.05; % Height in meters
+
+    % Modes
+    modes = [0 1; 1 0; 1 1; 4 4]; % TE01, TE10, TE11, TE44
+
+    % Calculate cutoff frequencies
+    for i = 1:size(modes, 1)
+        m = modes(i, 1); % Mode index m
+        p = modes(i, 2); % Mode index p
+
+        % Cutoff frequency formula
+        fc = (c / (2 * pi)) * sqrt((m * pi / a)^2 + (p * pi / b)^2);
+
+        % Display the result
+        fprintf('Cutoff frequency for TE_{%d%d}: %.2f GHz\n', m, p, fc / 1e9);
+    end
+end
