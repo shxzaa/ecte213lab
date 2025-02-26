@@ -1,0 +1,37 @@
+function Example4_2_TEWave2DXY_Plot_Modified()
+    % Parameters
+    epsilon_r = 1;
+    mu_r = 1;
+    H0 = 1;
+    a = 0.1;
+    b = 0.05;
+    f = 2e10;
+    z = 0;
+    t = 0.1 / f;
+
+    % TE01 mode
+    m = 0; p = 1;
+    [E_x, E_y, E_z, H_x, H_y, H_z] = TEWave2DXY(epsilon_r, mu_r, H0, m, p, a, b, z, f, t, 20, 20);
+    PlotFields(E_x, E_y, E_z, H_x, H_y, H_z, a, b, 'TE01');
+
+    % TE10 mode
+    m = 1; p = 0;
+    [E_x, E_y, E_z, H_x, H_y, H_z] = TEWave2DXY(epsilon_r, mu_r, H0, m, p, a, b, z, f, t, 20, 20);
+    PlotFields(E_x, E_y, E_z, H_x, H_y, H_z, a, b, 'TE10');
+
+    % TE22 mode
+    m = 2; p = 2;
+    [E_x, E_y, E_z, H_x, H_y, H_z] = TEWave2DXY(epsilon_r, mu_r, H0, m, p, a, b, z, f, t, 20, 20);
+    PlotFields(E_x, E_y, E_z, H_x, H_y, H_z, a, b, 'TE22');
+end
+
+function PlotFields(E_x, E_y, E_z, H_x, H_y, H_z, a, b, mode)
+    figure;
+    [x, y] = meshgrid(linspace(0, a, 20), linspace(0, b, 20));
+    subplot(3, 2, 1); quiver(x, y, E_x, E_y); axis([0 a 0 b]); xlabel('x'); ylabel('y'); title([mode ' (E_x, E_y)']);
+    subplot(3, 2, 3); surf(x, y, E_z); title([mode ' E_z']); xlabel('x'); ylabel('y');
+    subplot(3, 2, 5); surf(x, y, sqrt(abs(E_x.^2) + abs(E_y.^2) + abs(E_z.^2))); title([mode ' |E|']); rotate3d on; xlabel('x'); ylabel('y');
+    subplot(3, 2, 2); quiver(x, y, H_x, H_y, 2); axis([0 a 0 b]); xlabel('x'); ylabel('y'); title([mode ' (H_x, H_y)']);
+    subplot(3, 2, 4); surf(x, y, H_z); title([mode ' H_z']); xlabel('x'); ylabel('y');
+    subplot(3, 2, 6); surf(x, y, sqrt(abs(H_x.^2) + abs(H_y.^2) + abs(H_z.^2))); title([mode ' |H|']); rotate3d on; xlabel('x'); ylabel('y');
+end
