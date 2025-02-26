@@ -1,0 +1,46 @@
+function TEWave3D_VaryingTime_Task4_1()
+    % Parameters
+    a = 0.2; b = 0.05; c = 0.1;
+    f = 10e10; % Frequency in Hz
+    epsilon_r = 2; mu_r = 1;
+    H0 = 1;
+    T = 1 / f; % Period of the wave
+    t = 0.15 * T; % Time instant
+    Na = 20; Nb = 20; Nc = 5; % Grid points
+    pausetime = 0.5; % Pause time for animation
+
+    % Modes to visualize
+    modes = [0 1; 1 0; 1 1; 4 4]; % TE01, TE10, TE11, TE44
+
+    % Loop through each mode
+    for i = 1:size(modes, 1)
+        m = modes(i, 1); % Mode index m
+        p = modes(i, 2); % Mode index p
+
+        % Compute and simulate the waves
+        [x, y, z] = ndgrid(linspace(0, a, Na), linspace(0, b, Nb), linspace(0, c, Nc));
+        [E_x, E_y, E_z, H_x, H_y, H_z] = TEWave3D(epsilon_r, mu_r, H0, m, p, a, b, c, f, t, Na, Nb, Nc);
+
+        % Compute Poynting vector S = E x H
+        S_x = E_y .* H_z - E_z .* H_y;
+        S_y = E_z .* H_x - E_x .* H_z;
+        S_z = E_x .* H_y - E_y .* H_x;
+
+        % Plot the results
+        figure;
+        subplot(1, 2, 1);
+        quiver3(x, y, z, S_x, S_y, S_z, 4);
+        axis([0 a 0 b 0 c]); xlabel('x'); ylabel('y'); zlabel('z');
+        title(sprintf('TE_{%d%d} (S_x, S_y, S_z)', m, p));
+        rotate3d on;
+
+        subplot(1, 2, 2);
+        posz = ceil(Nc / 2); % Mid-plane along z-axis
+        quiver3(x(:, :, posz), y(:, :, posz), z(:, :, posz), S_x(:, :, posz), S_y(:, :, posz), S_z(:, :, posz), 4);
+        axis([0 a 0 b 0 c]); xlabel('x'); ylabel('y'); zlabel('z');
+        title(sprintf('TE_{%d%d} (S_x, S_y, S_z) at z=%.2f', m, p, z(1, 1, posz)));
+        rotate3d on;
+
+        pause(pausetime); % Pause to observe the plot
+    end
+end
