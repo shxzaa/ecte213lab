@@ -1,0 +1,29 @@
+%Plot 2D pattern
+f = 3*10^8; c = 3*10^8; lambda = c/f; k = 2*pi/lambda;
+l = 0.8*lambda; 
+N_theta = 200; N_phi = 200;
+[theta,phi] = meshgrid(0:pi./(N_theta-1):pi, 0:2*pi./(N_phi-1):2*pi);
+F = ((cos(k*l*cos(theta))-cos(k*l))./sin(theta));
+XD = abs(F).*sin(theta).*cos(phi);
+YD = abs(F).*sin(theta).*sin(phi);
+ZD = abs(F).*cos(theta);
+subplot(2,2,1); surf(XD,YD,ZD);
+title('2D pattern vs (\theta, \phi)'); axis image; rotate3d on; grid on;
+% Pattern vs \theta in polar coordinates
+N_theta = 200;
+theta = 0: pi/( N_theta-1):pi;
+F = (cos(k*l*cos(theta))-cos(k*l))./sin(theta);
+subplot(2,2,2)
+polar(theta,abs(F))
+title('1D pattern vs \theta'); grid on
+% Pattern vs \theta in rectangular coordinates
+subplot(2,2,4)
+plot(theta/pi*180, 20*log10(abs(F)/max(abs(F))),'linewidth', 2)
+title('1D pattern vs \theta, normalized'); grid on; ylabel('20log10 (abs(F))')
+% Pattern vs \phi in polar coordinates
+subplot(2,2,3)
+phi = 0: 2*pi/( N_phi-1):2*pi;
+theta = pi/2;
+F = (cos(k*l*cos(theta))-cos(k*l))./sin(theta)*ones(size(phi));
+polar(phi, abs(F))
+title('1D pattern vs \phi with \theta=\pi/2'); grid on
