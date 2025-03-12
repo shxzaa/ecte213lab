@@ -1,0 +1,38 @@
+% Parameters
+f = 300e6; % Frequency in Hz
+c = 3e8; % Speed of light in m/s
+lambda = c / f; % Wavelength
+k = 2 * pi / lambda; % Wave number
+
+% Lengths to compare
+lengths = [0.125, 0.25, 0.5, 0.6, 0.75] * lambda;
+
+% Plot settings
+N_theta = 200;
+theta = linspace(0, pi, N_theta);
+
+% Loop through each length
+for l = lengths
+    % Calculate the pattern
+    F = (cos(k * l * cos(theta)) - cos(k * l)) ./ sin(theta);
+    
+    % Normalize the pattern
+    F_normalized = abs(F) / max(abs(F));
+    
+    % Plot the pattern
+    figure;
+    polarplot(theta, F_normalized);
+    title(['Dipole Antenna Pattern for l = ', num2str(l/lambda), '\lambda']);
+    
+    % Calculate 3dB beamwidth and sidebeam level
+    [maxF, maxIdx] = max(F_normalized);
+    halfPower = maxF / sqrt(2);
+    idx = find(F_normalized >= halfPower, 1, 'last');
+    beamwidth = 2 * abs(theta(maxIdx) - theta(idx)) * 180 / pi;
+    sidebeamLevel = 20 * log10(max(F_normalized(F_normalized < maxF)) / maxF);
+    
+    % Display results
+    disp(['For l = ', num2str(l/lambda), 'λ:']);
+    disp(['3dB Beamwidth: ', num2str(beamwidth), ' degrees']);
+    disp(['Sidebeam Level: ', num2str(sidebeamLevel), ' dB']);
+end
