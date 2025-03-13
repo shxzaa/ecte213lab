@@ -1,0 +1,78 @@
+#define echoPin1 11
+#define trigPin1 12
+#define echoPin2 9
+#define trigPin2 10
+#define echoPin3 7
+#define trigPin3 8
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(trigPin1, OUTPUT);
+    pinMode(echoPin1, INPUT);
+    pinMode(trigPin2, OUTPUT);
+    pinMode(echoPin2, INPUT);
+    pinMode(trigPin3, OUTPUT);
+    pinMode(echoPin3, INPUT);
+    pinMode(5, OUTPUT);
+    pinMode(2, OUTPUT);
+    pinMode(4, OUTPUT);
+    pinMode(3, OUTPUT);
+}
+
+long getDistance(int trigPin, int echoPin) {
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+
+    long duration = pulseIn(echoPin, HIGH, 30000); // Timeout at 30ms (safety)
+    if (duration == 0) {
+        Serial.print("Sensor on pin ");
+        Serial.print(echoPin);
+        Serial.println(" timeout!");
+        return -1; // Return -1 if no reading
+    }
+
+    return duration / 58.2;
+}
+
+void loop() {
+    long distance1 = getDistance(trigPin1, echoPin1);
+    long distance2 = getDistance(trigPin2, echoPin2);
+    long distance3 = getDistance(trigPin3, echoPin3);
+
+    Serial.print("D1: "); Serial.print(distance1); Serial.print(" cm | ");
+    Serial.print("D2: "); Serial.print(distance2); Serial.print(" cm | ");
+    Serial.print("D3: "); Serial.print(distance3); Serial.println(" cm");
+
+    if (distance1 > 0 && distance1 < 80) {
+        digitalWrite(5, HIGH);
+        tone(2, 1047);
+        delay(250);
+        noTone(2);
+    } else {
+        digitalWrite(5, LOW);
+    }
+
+    if (distance2 > 0 && distance2 < 80) {
+        digitalWrite(4, HIGH);
+        tone(2, 1319);
+        delay(250);
+        noTone(2);
+    } else {
+        digitalWrite(4, LOW);
+    }
+
+    if (distance3 > 0 && distance3 < 80) {
+        digitalWrite(3, HIGH);
+        tone(2, 1319);
+        delay(250);
+        noTone(2);
+    } else {
+        digitalWrite(3, LOW);
+    }
+
+
+    delay(100); // Short delay to avoid excessive readings
+}
